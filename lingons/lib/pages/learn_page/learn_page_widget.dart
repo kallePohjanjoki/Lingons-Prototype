@@ -31,6 +31,14 @@ class _LearnPageWidgetState extends State<LearnPageWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => LearnPageModel());
+
+    // Initialize audio player after the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _model.initAudioPlayer();
+      _model.onStateChanged = () {
+        setState(() {});
+      };
+    });
   }
 
   @override
@@ -198,6 +206,140 @@ class _LearnPageWidgetState extends State<LearnPageWidget> {
                         fontSize: 16.0,
                       ),
                     ),
+              ),
+              const SizedBox(height: 30.0),
+              // Audio controls
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsetsDirectional.fromSTEB(20.0, 0.0, 20.0, 0.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'Äänitiedostojen toisto:',
+                      style: FlutterFlowTheme.of(context).titleMedium.override(
+                            font: GoogleFonts.inter(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            fontSize: 16.0,
+                          ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        FFButtonWidget(
+                          onPressed: _model.isPlaying
+                              ? null
+                              : () {
+                                  _model.startAudioSequence();
+                                  setState(() {});
+                                },
+                          text: 'Aloita toisto',
+                          options: FFButtonOptions(
+                            height: 40.0,
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                16.0, 0.0, 16.0, 0.0),
+                            color: _model.isPlaying
+                                ? const Color(0xFFCCCCCC)
+                                : const Color(0xFF4CAF50),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        FFButtonWidget(
+                          onPressed: _model.isPlaying
+                              ? () {
+                                  _model.pauseAudio();
+                                  setState(() {});
+                                }
+                              : null,
+                          text: 'Tauko',
+                          options: FFButtonOptions(
+                            height: 40.0,
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                16.0, 0.0, 16.0, 0.0),
+                            color: _model.isPlaying
+                                ? const Color(0xFFFF9800)
+                                : const Color(0xFFCCCCCC),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        FFButtonWidget(
+                          onPressed: _model.isPlaying
+                              ? () {
+                                  _model.stopAudioSequence();
+                                  setState(() {});
+                                }
+                              : null,
+                          text: 'Pysäytä',
+                          options: FFButtonOptions(
+                            height: 40.0,
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                16.0, 0.0, 16.0, 0.0),
+                            color: _model.isPlaying
+                                ? const Color(0xFFF44336)
+                                : const Color(0xFFCCCCCC),
+                            textStyle: FlutterFlowTheme.of(context)
+                                .titleSmall
+                                .override(
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20.0),
+                    if (_model.isPlaying)
+                      Container(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                            16.0, 12.0, 16.0, 12.0),
+                        decoration: BoxDecoration(
+                          color: FlutterFlowTheme.of(context)
+                              .primary
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            color: FlutterFlowTheme.of(context).primary,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.play_circle_filled,
+                              color: FlutterFlowTheme.of(context).primary,
+                              size: 20.0,
+                            ),
+                            const SizedBox(width: 8.0),
+                            Text(
+                              'Toistetaan sanaa ${_model.currentWordIndex} (${_model.isPlayingTargetLanguage ? _model.getLanguageName(_model.targetLanguageCode) : _model.getLanguageName(_model.instructionLanguageCode)})',
+                              style: FlutterFlowTheme.of(context)
+                                  .bodyMedium
+                                  .override(
+                                    color: FlutterFlowTheme.of(context).primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ],
           ),
